@@ -13,14 +13,10 @@ jobs:
         run: winget source remove msstore
       - name: Install Mono
         run: winget install -e --id Mono.Mono --accept-package-agreements --accept-source-agreements --disable-interactivity
-      - name: Try running mono
-        run: mono test
-      - name: Try running mono2
-        run: mono.exe test
-      - name: Try running pdb2mdb
-        run: pdb2mdb test
-      - name: Try running pdb2mdb 2
-        run: pdb2mdb.exe test
+      - name: Find mono
+        run: where mono
+      - name: Find pdb2mdb
+        run: where pdb2mdb
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup .NET
