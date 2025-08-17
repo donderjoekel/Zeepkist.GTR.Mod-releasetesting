@@ -9,10 +9,8 @@ jobs:
     env:
       UNITY_VERSION: 2021.3.10f1
     steps:
-      - name: Install winget
-        uses: Cyberboss/install-winget@v1
       - name: Install monodevelop
-        run: winget install --id=Mono.Mono  -e
+        run: choco install monodevelop
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup .NET
