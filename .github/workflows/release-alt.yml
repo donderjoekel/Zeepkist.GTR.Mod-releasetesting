@@ -29,6 +29,16 @@ jobs:
           if (-not $name) { Write-Error "No .csproj found"; exit 1 }
           "csproj_name=$name" >> $env:GITHUB_OUTPUT
 
+      - name: Get AssemblyName
+        id: asm
+        uses: ./.github/actions/get-assembly-name
+        with:
+          csproj: ${{ steps.detect.outputs.csproj_name }}
+
+      - name: Use it
+        run: |
+          echo "AssemblyName is: ${{ steps.asm.outputs.assembly_name }}"
+
       - name: Check dir
         run: |
           cd C:\out\publish\${{ steps.detect.outputs.csproj_name }}\debug
