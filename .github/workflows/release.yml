@@ -7,17 +7,14 @@ jobs:
   build:
     runs-on: windows-2025
     steps:
-    #   - name: Install gtksharp
-    #     run: winget install -e --id Mono.gtksharp --disable-interactivity --accept-source-agreements
-
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      # - name: Restore dependencies
-      #   run: dotnet restore
+
       - name: Publish
         run: dotnet publish --artifacts-path "C:\out"
 
@@ -25,19 +22,11 @@ jobs:
         id: csproj
         uses: ./.github/actions/detect-csproj
 
-      - name: Use output
-        run: |
-          echo "Found: ${{ steps.csproj.outputs.csproj_name }}"
-
       - name: Get AssemblyName
         id: asm
         uses: ./.github/actions/get-assembly-name
         with:
           csproj: ${{ steps.csproj.outputs.csproj_name }}
-
-      - name: Use it
-        run: |
-          echo "AssemblyName is: ${{ steps.asm.outputs.assembly_name }}"
 
       - name: Check dir
         run: |
@@ -46,10 +35,17 @@ jobs:
 
       - name: Remove msstore source
         run: winget source remove msstore
+
       - name: Install Mono
         run: winget install -e --id Mono.Mono --accept-package-agreements --accept-source-agreements --disable-interactivity
+
       - name: Try pdb2mdb
-        run: Start "C:\Program Files\Mono\bin\pdb2mdb.bat"
+        run: Start "C:\Program Files\Mono\bin\pdb2mdb.bat" "C:\out\publish\${{ steps.csproj.outputs.csproj_name }}\debug\${{ steps.asm.outputs.assembly_name }}.dll"
+
+      - name: Check dir
+        run: |
+          cd C:\out\publish\${{ steps.csproj.outputs.csproj_name }}\debug
+          dir
 
       # # --- Zip the publish output ---
       # - name: Zip publish output
