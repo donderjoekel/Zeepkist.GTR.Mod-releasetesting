@@ -14,26 +14,29 @@ runs:
       shell: pwsh
       run: |
         $projPath = "${{ inputs.csproj }}"
+        if (-not $projPath.EndsWith('.csproj')) { $projPath = "$projPath.csproj" }
 
-        if (-not $projPath.EndsWith(".csproj")) {
-          $projPath = "$projPath.csproj"
-        }
-
-        if (-not (Test-Path $projPath)) {
+        if (-not (Test-Path -LiteralPath $projPath)) {
           throw "csproj not found at path: $projPath"
         }
 
-        [xml]$proj = Get-Content -Raw $projPath
+        [xml]$proj = Get-Content -Raw -LiteralPath $projPath
 
-        $proj.OuterXml | Out-String
+        # Read <AssemblyName> then <RootNamespace> (first match), fall back to file name
+        $node = $proj.SelectSingleNode('/Project/PropertyGroup/AssemblyName')
+        $assemblyName = if ($node) { $node.InnerText } else { $null }
 
-        $assemblyName = $proj.Project.PropertyGroup.AssemblyName
-        if (-not $assemblyName -or -not $assemblyName.Trim()) {
-            $assemblyName = $proj.Project.PropertyGroup.RootNamespace
+        if ([string]::IsNullOrWhiteSpace($assemblyName)) {
+          $node = $proj.SelectSingleNode('/Project/PropertyGroup/RootNamespace')
+          $assemblyName = if ($node) { $node.InnerText } else { $null }
         }
-        if (-not $assemblyName -or -not $assemblyName.Trim()) {
-            $assemblyName = [System.IO.Path]::GetFileNameWithoutExtension($projPath)
+
+        if ([string]::IsNullOrWhiteSpace($assemblyName)) {
+          $assemblyName = [System.IO.Path]::GetFileNameWithoutExtension($projPath)
         }
+
+        # Optional: helpful logging
+        Write-Host "Resolved assembly name: '$assemblyName' from '$projPath'"
 
         # Emit output
         "assembly_name=$assemblyName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
