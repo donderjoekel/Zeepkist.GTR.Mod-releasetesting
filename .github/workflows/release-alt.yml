@@ -9,12 +9,7 @@ jobs:
     steps:
     #   - name: Install gtksharp
     #     run: winget install -e --id Mono.gtksharp --disable-interactivity --accept-source-agreements
-      - name: Remove msstore source
-        run: winget source remove msstore
-      - name: Install Mono
-        run: winget install -e --id Mono.Mono --accept-package-agreements --accept-source-agreements --disable-interactivity
-      - name: Try pdb2mdb
-        run: Start "C:\Program Files\Mono\bin\pdb2mdb.bat"
+
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup .NET
@@ -24,7 +19,19 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
       - name: Publish
-        run: dotnet publish
+        run: dotnet publish --artifacts-path "C:\out"
+
+      - name: Check dir
+        run: |
+          cd C:\out
+          dir
+
+      - name: Remove msstore source
+        run: winget source remove msstore
+      - name: Install Mono
+        run: winget install -e --id Mono.Mono --accept-package-agreements --accept-source-agreements --disable-interactivity
+      - name: Try pdb2mdb
+        run: Start "C:\Program Files\Mono\bin\pdb2mdb.bat"
 
       # # --- Zip the publish output ---
       # - name: Zip publish output
