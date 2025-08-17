@@ -7,10 +7,12 @@ jobs:
   build:
     runs-on: windows-2025
     steps:
-      - name: Install gtksharp
-        run: winget install -e --id Mono.gtksharp --disable-interactivity --accept-source-agreements
-      - name: Install monodevelop
-        run: choco install monodevelop
+    #   - name: Install gtksharp
+    #     run: winget install -e --id Mono.gtksharp --disable-interactivity --accept-source-agreements
+      - name: Remove msstore source
+        run: winget source remove msstore
+      - name: Install Mono
+        run: winget install -e --id Mono.Mono
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup .NET
