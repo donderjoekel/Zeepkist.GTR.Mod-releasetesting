@@ -35,11 +35,6 @@ jobs:
         with:
           csproj: ${{ steps.csproj.outputs.csproj_name }}
 
-      - name: Check dir
-        run: |
-          cd C:\out\publish\${{ steps.csproj.outputs.csproj_name }}\debug
-          dir
-
       - name: Remove msstore source
         run: winget source remove msstore
 
@@ -52,16 +47,11 @@ jobs:
           "C:\Program Files\Mono\bin\pdb2mdb.bat"
           "C:\out\publish\${{ steps.csproj.outputs.csproj_name }}\debug\${{ steps.asm.outputs.assembly_name }}.dll"
 
-      - name: Check dir
-        run: |
-          cd C:\out\publish\${{ steps.csproj.outputs.csproj_name }}\debug
-          dir
-
       - name: Zip build
         shell: pwsh
         run: |
           $src = "C:\out\publish\${{ steps.csproj.outputs.csproj_name }}\debug"
-          $dst = "C:\out\build.zip"
+          $dst = "C:\out\build-${{ github.event.release.tag_name }}.zip"
           if (Test-Path $dst) { Remove-Item $dst -Force }
           Compress-Archive -Path "$src\*" -DestinationPath $dst -Force
     
