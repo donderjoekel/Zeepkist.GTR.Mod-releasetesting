@@ -13,8 +13,8 @@ jobs:
         run: winget source remove msstore
       - name: Install Mono
         run: winget install -e --id Mono.Mono --accept-package-agreements --accept-source-agreements --disable-interactivity
-      - name: Find mono
-        run: " \"C:\\Program Files\\Mono\\bin\\pdb2mdb.bat\" test"
+      - name: Try pdb2mdb
+        run: " \"C:\\Program Files\\Mono\\bin\\pdb2mdb.bat\""
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup .NET
