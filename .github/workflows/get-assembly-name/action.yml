@@ -1,0 +1,32 @@
+name: Get AssemblyName from csproj
+description: Reads <AssemblyName> (or falls back to <RootNamespace> / file name) from a .csproj.
+inputs:
+  csproj:
+    description: Path to the .csproj file
+    required: true
+outputs:
+  assembly_name:
+    description: Resolved assembly name
+runs:
+  using: composite
+  steps:
+    - id: get
+      shell: pwsh
+      run: |
+        $projPath = "${{ inputs.csproj }}"
+
+        if (-not (Test-Path $projPath)) {
+          throw "csproj not found at path: $projPath"
+        }
+
+        [xml]$proj = Get-Content -Raw $projPath
+        $assemblyName = $proj.Project.PropertyGroup.AssemblyName
+        if (-not $assemblyName -or -not $assemblyName.Trim()) {
+            $assemblyName = $proj.Project.PropertyGroup.RootNamespace
+        }
+        if (-not $assemblyName -or -not $assemblyName.Trim()) {
+            $assemblyName = [System.IO.Path]::GetFileNameWithoutExtension($projPath)
+        }
+
+        # Emit output
+        "assembly_name=$assemblyName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
