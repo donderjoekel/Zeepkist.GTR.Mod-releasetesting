@@ -1,4 +1,4 @@
-name: release alt
+name: release
 
 on:
   workflow_dispatch:
@@ -23,7 +23,7 @@ jobs:
 
       - name: Check dir
         run: |
-          cd C:\out
+          cd C:\out\publish
           dir
 
       - name: Remove msstore source
