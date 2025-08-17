@@ -24,6 +24,9 @@ runs:
         }
 
         [xml]$proj = Get-Content -Raw $projPath
+
+        $proj.OuterXml | Out-String
+
         $assemblyName = $proj.Project.PropertyGroup.AssemblyName
         if (-not $assemblyName -or -not $assemblyName.Trim()) {
             $assemblyName = $proj.Project.PropertyGroup.RootNamespace
