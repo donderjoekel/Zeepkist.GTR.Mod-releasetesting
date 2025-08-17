@@ -1,0 +1,40 @@
+name: Windows • Unity install + .NET build + zip
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    env:
+      UNITY_VERSION: 2021.3.10f1
+    steps:
+      - name: Setup Unity ${{ env.UNITY_VERSION }}
+        uses: kuler90/setup-unity@v1
+        with:
+          unity-version: ${{ env.UNITY_VERSION }}
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore dependencies
+        run: dotnet restore
+      - name: Publish
+        run: dotnet publish
+
+      # # --- Zip the publish output ---
+      # - name: Zip publish output
+      #   shell: pwsh
+      #   run: |
+      #     if (Test-Path "${{ env.ZIP_NAME }}.zip") { Remove-Item -Force "${{ env.ZIP_NAME }}.zip" }
+      #     Compress-Archive -Path "${{ env.PUBLISH_DIR }}\*" -DestinationPath "${{ env.ZIP_NAME }}.zip"
+
+      # # --- Upload artifacts ---
+      # - name: Upload zipped output
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ${{ env.ZIP_NAME }}
+      #     path: ${{ env.ZIP_NAME }}.zip
+      #     if-no-files-found: error
