@@ -1,7 +1,8 @@
 name: release
 
 on:
-  workflow_dispatch:
+  release:
+    types: [published]
 
 jobs:
   build:
@@ -15,12 +16,18 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Publish
-        run: dotnet publish --artifacts-path "C:\out"
-
       - name: Detect csproj
         id: csproj
         uses: ./.github/actions/detect-csproj
+
+      - name: Set CSProj Version
+        uses: KageKirin/set-csproj-version@v1.0.0
+        with:
+          file: ${{ steps.csproj.outputs.csproj_name }}.csproj
+          version: ${{ github.event.release.tag_name }}
+
+      - name: Publish
+        run: dotnet publish --artifacts-path "C:\out"
 
       - name: Get AssemblyName
         id: asm
@@ -50,17 +57,17 @@ jobs:
           cd C:\out\publish\${{ steps.csproj.outputs.csproj_name }}\debug
           dir
 
-      # # --- Zip the publish output ---
-      # - name: Zip publish output
-      #   shell: pwsh
-      #   run: |
-      #     if (Test-Path "${{ env.ZIP_NAME }}.zip") { Remove-Item -Force "${{ env.ZIP_NAME }}.zip" }
-      #     Compress-Archive -Path "${{ env.PUBLISH_DIR }}\*" -DestinationPath "${{ env.ZIP_NAME }}.zip"
-
-      # # --- Upload artifacts ---
-      # - name: Upload zipped output
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: ${{ env.ZIP_NAME }}
-      #     path: ${{ env.ZIP_NAME }}.zip
-      #     if-no-files-found: error
+      - name: Zip build
+        shell: pwsh
+        run: |
+          $src = "C:\out\publish\${{ steps.csproj.outputs.csproj_name }}\debug"
+          $dst = "C:\out\build.zip"
+          if (Test-Path $dst) { Remove-Item $dst -Force }
+          Compress-Archive -Path "$src\*" -DestinationPath $dst -Force
+    
+      - name: Upload zipped build
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-zip-${{ github.run_number }}
+          path: C:\out\build-${{ github.event.release.tag_name }}.zip
+          if-no-files-found: error
