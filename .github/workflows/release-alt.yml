@@ -16,14 +16,22 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - name: Restore dependencies
-        run: dotnet restore
+      # - name: Restore dependencies
+      #   run: dotnet restore
       - name: Publish
         run: dotnet publish --artifacts-path "C:\out"
 
+      - name: Get csproj name
+        id: detect
+        run: |
+          $name = Get-ChildItem -Filter *.csproj |
+            Select-Object -First 1 -ExpandProperty BaseName
+          if (-not $name) { Write-Error "No .csproj found"; exit 1 }
+          "csproj_name=$name" >> $env:GITHUB_OUTPUT
+
       - name: Check dir
         run: |
-          cd C:\out\publish\Zeepkist.GTR.Mod
+          cd C:\out\publish\${{ steps.detect.outputs.csproj_name }}\debug
           dir
 
       - name: Remove msstore source
