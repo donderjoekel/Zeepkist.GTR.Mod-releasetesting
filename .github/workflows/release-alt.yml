@@ -23,7 +23,7 @@ jobs:
 
       - name: Check dir
         run: |
-          cd C:\out\publish
+          cd C:\out\publish\Zeepkist.GTR.Mod
           dir
 
       - name: Remove msstore source
