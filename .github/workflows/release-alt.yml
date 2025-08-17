@@ -5,14 +5,10 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
-    env:
-      UNITY_VERSION: 2021.3.10f1
+    runs-on: windows-2025
     steps:
-      - name: Install winget
-        uses: Cyberboss/install-winget@v1
       - name: Install gtksharp
-        run: winget install -e --id Mono.gtksharp
+        run: winget install -e --id Mono.gtksharp --disable-interactivity --accept-source-agreements
       - name: Install monodevelop
         run: choco install monodevelop
       - name: Checkout
