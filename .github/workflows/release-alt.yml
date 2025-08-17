@@ -9,12 +9,8 @@ jobs:
     env:
       UNITY_VERSION: 2021.3.10f1
     steps:
-      - name: Pull UnityCI Editor Image
-        run: docker pull unityci/editor:windows-2021.3.10f1-base-3.1.0
-      - name: Run inside docker container
-        run: |
-          docker run --rm unityci/editor:windows-2021.3.10f1-base-3.1.0 \
-            powershell -Command "Write-Output 'Hello from inside UnityCI container!'"
+      - name: winget
+        run: winget install --id=Mono.Mono  -e
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup .NET
