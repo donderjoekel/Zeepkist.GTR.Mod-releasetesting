@@ -1,16 +1,20 @@
 name: Get AssemblyName from csproj
 description: Reads <AssemblyName> (or falls back to <RootNamespace> / file name) from a .csproj.
+
 inputs:
   csproj:
     description: Path to the .csproj file
     required: true
+
 outputs:
   assembly_name:
     description: Resolved assembly name
+    value: ${{ steps.assemblyname.outputs.assembly_name }}
+
 runs:
   using: composite
   steps:
-    - id: get
+    - id: assemblyname
       shell: pwsh
       run: |
         $projPath = "${{ inputs.csproj }}"
@@ -34,9 +38,6 @@ runs:
         if ([string]::IsNullOrWhiteSpace($assemblyName)) {
           $assemblyName = [System.IO.Path]::GetFileNameWithoutExtension($projPath)
         }
-
-        # Optional: helpful logging
-        Write-Host "Resolved assembly name: '$assemblyName' from '$projPath'"
 
         # Emit output
         "assembly_name=$assemblyName" >> $env:GITHUB_OUTPUT
