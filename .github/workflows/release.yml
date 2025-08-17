@@ -26,7 +26,8 @@ jobs:
         uses: ./.github/actions/detect-csproj
 
       - name: Use output
-        run: echo "Found: ${{ steps.csproj.outputs.csproj_name }}"
+        run: |
+          echo "Found: ${{ steps.csproj.outputs.csproj_name }}"
 
       - name: Get AssemblyName
         id: asm
