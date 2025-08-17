@@ -15,6 +15,10 @@ runs:
       run: |
         $projPath = "${{ inputs.csproj }}"
 
+        if (-not $projPath.EndsWith(".csproj")) {
+          $projPath = "$projPath.csproj"
+        }
+
         if (-not (Test-Path $projPath)) {
           throw "csproj not found at path: $projPath"
         }
