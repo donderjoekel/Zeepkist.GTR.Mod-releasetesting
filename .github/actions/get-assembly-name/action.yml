@@ -39,4 +39,4 @@ runs:
         Write-Host "Resolved assembly name: '$assemblyName' from '$projPath'"
 
         # Emit output
-        "assembly_name=$assemblyName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+        "assembly_name=$assemblyName" >> $env:GITHUB_OUTPUT
