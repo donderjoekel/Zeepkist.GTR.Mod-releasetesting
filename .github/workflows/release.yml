@@ -1,28 +1,54 @@
-name: Windows • Unity install + .NET build + zip
+name: release
 
 on:
   workflow_dispatch:
 
 jobs:
   build:
-    runs-on: windows-latest
-    env:
-      UNITY_VERSION: 2021.3.10f1
+    runs-on: windows-2025
     steps:
-      - name: Setup Unity ${{ env.UNITY_VERSION }}
-        uses: kuler90/setup-unity@v1
-        with:
-          unity-version: ${{ env.UNITY_VERSION }}
+    #   - name: Install gtksharp
+    #     run: winget install -e --id Mono.gtksharp --disable-interactivity --accept-source-agreements
+
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - name: Restore dependencies
-        run: dotnet restore
+      # - name: Restore dependencies
+      #   run: dotnet restore
       - name: Publish
-        run: dotnet publish
+        run: dotnet publish --artifacts-path "C:\out"
+
+      - name: Detect csproj
+        id: csproj
+        uses: ./.github/actions/detect-csproj
+
+      - name: Use output
+        run: echo "Found: ${{ steps.csproj.outputs.csproj_name }}"
+
+      - name: Get AssemblyName
+        id: asm
+        uses: ./.github/actions/get-assembly-name
+        with:
+          csproj: ${{ steps.csproj.outputs.csproj_name }}
+
+      - name: Use it
+        run: |
+          echo "AssemblyName is: ${{ steps.asm.outputs.assembly_name }}"
+
+      - name: Check dir
+        run: |
+          cd C:\out\publish\${{ steps.csproj.outputs.csproj_name }}\debug
+          dir
+
+      - name: Remove msstore source
+        run: winget source remove msstore
+      - name: Install Mono
+        run: winget install -e --id Mono.Mono --accept-package-agreements --accept-source-agreements --disable-interactivity
+      - name: Try pdb2mdb
+        run: Start "C:\Program Files\Mono\bin\pdb2mdb.bat"
 
       # # --- Zip the publish output ---
       # - name: Zip publish output
