@@ -14,9 +14,7 @@ jobs:
       - name: Install Mono
         run: winget install -e --id Mono.Mono --accept-package-agreements --accept-source-agreements --disable-interactivity
       - name: Find mono
-        run: where mono
-      - name: Find pdb2mdb
-        run: where pdb2mdb
+        run: "C:\\Program Files\\Mono\\bin\\pdb2mdb.bat" "test"
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup .NET
