@@ -8,6 +8,12 @@ jobs:
   build:
     runs-on: windows-2025
     steps:
+      - name: Extract version (trim leading v)
+        run: |
+          $raw = "${{ github.event.release.tag_name }}"
+          $version = $raw -replace '^v',''
+          "VERSION=$version" >> $env:GITHUB_ENV
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -24,7 +30,7 @@ jobs:
         uses: KageKirin/set-csproj-version@v1.0.0
         with:
           file: ${{ steps.csproj.outputs.csproj_name }}.csproj
-          version: ${{ github.event.release.tag_name }}
+          version: ${{ env.VERSION }}
 
       - name: Publish
         run: dotnet publish --artifacts-path "C:\out"
@@ -51,7 +57,7 @@ jobs:
         shell: pwsh
         run: |
           $src = "C:\out\publish\${{ steps.csproj.outputs.csproj_name }}\debug"
-          $dst = "C:\out\build-${{ github.event.release.tag_name }}.zip"
+          $dst = "C:\out\build-${{ env.VERSION }}.zip"
           if (Test-Path $dst) { Remove-Item $dst -Force }
           Compress-Archive -Path "$src\*" -DestinationPath $dst -Force
 
@@ -59,8 +65,8 @@ jobs:
         uses: Thundernerd/action-upload-file@v1.2.2
         with:
           host: 'g-3213.modapi.io'
-          path: '/v1/games/3213/mods/2948039/files?version=${{ github.event.release.tag_name }}&active=false'
-          filePath: 'C:\out\build-${{ github.event.release.tag_name }}.zip'
+          path: '/v1/games/3213/mods/2948039/files?version=${{ env.VERSION }}&active=false'
+          filePath: 'C:\out\build-${{ env.VERSION }}.zip'
           headers: |
             Accept: application/json
             Authorization: Bearer ${{ secrets.MODIO_BEARER }}
@@ -68,6 +74,6 @@ jobs:
       # - name: Upload zipped build
       #   uses: actions/upload-artifact@v4
       #   with:
-      #     name: build-${{ github.event.release.tag_name }}.zip
-      #     path: C:\out\build-${{ github.event.release.tag_name }}.zip
+      #     name: build-${{env.VERSION}}.zip
+      #     path: C:\out\build-${{env.VERSION}}.zip
       #     if-no-files-found: error
