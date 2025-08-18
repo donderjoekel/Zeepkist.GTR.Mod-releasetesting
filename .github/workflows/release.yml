@@ -54,10 +54,20 @@ jobs:
           $dst = "C:\out\build-${{ github.event.release.tag_name }}.zip"
           if (Test-Path $dst) { Remove-Item $dst -Force }
           Compress-Archive -Path "$src\*" -DestinationPath $dst -Force
-    
-      - name: Upload zipped build
-        uses: actions/upload-artifact@v4
+
+      - name: Upload to mod.io
+        uses: Thundernerd/action-upload-file@v1.2.1
         with:
-          name: build-${{ github.event.release.tag_name }}.zip
-          path: C:\out\build-${{ github.event.release.tag_name }}.zip
-          if-no-files-found: error
+          host: 'g-3213.modapi.io'
+          path: '/v1/games/3213/mods/2948039/files?version=${{ github.event.release.tag_name }}&active=false'
+          filePath: 'C:\out\build-${{ github.event.release.tag_name }}.zip'
+          headers: |
+            Accept: application/json
+            Authorization: Bearer ${{ secrets.MODIO_BEARER }}
+    
+      # - name: Upload zipped build
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: build-${{ github.event.release.tag_name }}.zip
+      #     path: C:\out\build-${{ github.event.release.tag_name }}.zip
+      #     if-no-files-found: error
