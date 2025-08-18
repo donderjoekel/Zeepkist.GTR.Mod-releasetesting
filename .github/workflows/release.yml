@@ -56,7 +56,7 @@ jobs:
           Compress-Archive -Path "$src\*" -DestinationPath $dst -Force
 
       - name: Upload to mod.io
-        uses: Thundernerd/action-upload-file@v1.2.1
+        uses: Thundernerd/action-upload-file@v1.2.2
         with:
           host: 'g-3213.modapi.io'
           path: '/v1/games/3213/mods/2948039/files?version=${{ github.event.release.tag_name }}&active=false'
